@@ -18,4 +18,4 @@ class MainWindow(QMainWindow):
     layout.addWidget(self._camera)
     
     # --- WINDOW SETUP ---
-    self.setWindowTitle("La Sense")
+    self.setWindowTitle("LaSense Desktop")
