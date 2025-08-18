@@ -14,23 +14,24 @@ class CameraThread(QThread):
     self._cap = None
 
   def run(self):
+    self._running = True
     cap = cv2.VideoCapture(self._camera_index, cv2.CAP_DSHOW)
-    cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)
-    cap.set(cv2.CAP_PROP_AUTO_WB, 0) 
-    cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+    try:
+        cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)
+        cap.set(cv2.CAP_PROP_AUTO_WB, 0) 
+        cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
 
-    while self._running:
-      ret, frame = cap.read()      
-      if ret:
-        gray_image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        height, width = gray_image.shape
-        bytes_per_line = width
-        qt_image = QImage(gray_image.data, width, height, bytes_per_line, QImage.Format_Grayscale8)
-        self.change_pixmap_signal.emit(qt_image)
-    cap.release()
+        while self._running:
+            ret, frame = cap.read()
+            if ret:
+                gray_image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                h, w = gray_image.shape
+                bytes_per_line = w
+                qt_image = QImage(gray_image.data, w, h, bytes_per_line, QImage.Format_Grayscale8)
+                self.change_pixmap_signal.emit(qt_image)
+    finally:
+        cap.release()
 
   def stop(self):
-    print("STOP")
     self._running = False
     self.wait()
-    print("POST")
