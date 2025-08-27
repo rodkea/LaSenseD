@@ -1,3 +1,4 @@
+from Config import ConfigType, read_config, write_config, USER_CONFIG_PATH, DEFAULT_CONFIG_PATH
 from PyQt5.QtCore import pyqtSignal, QThread
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QImage
@@ -12,8 +13,9 @@ class CameraThread(QThread):
     self._camera_index = camera_index
     self._running = True
     self._cap = None
-    self._brightness = 0.0
-    self._contrast = 1.0
+    self._default_config = read_config(DEFAULT_CONFIG_PATH)
+    self._user_config = read_config(USER_CONFIG_PATH)
+
 
   def run(self):
     self._running = True
@@ -22,6 +24,10 @@ class CameraThread(QThread):
         self._cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)
         self._cap.set(cv2.CAP_PROP_AUTO_WB, 0) 
         self._cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+        self._cap.set(cv2.CAP_PROP_BRIGHTNESS, self._user_config['Brightness'])
+        self._cap.set(cv2.CAP_PROP_CONTRAST, self._user_config['Contrast'])
+        self._cap.set(cv2.CAP_PROP_GAIN, self._user_config['ISO'])
+        self._cap.set(cv2.CAP_PROP_SHARPNESS, self._user_config['Sharpness'])
 
         while self._running:
             ret, frame = self._cap.read()
@@ -34,6 +40,7 @@ class CameraThread(QThread):
     finally:
         self._cap.release()
 
+  
   def stop(self):
     self._running = False
     self.wait()
