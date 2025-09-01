@@ -1,8 +1,9 @@
-from Config import ConfigType, read_config, write_config, USER_CONFIG_PATH, DEFAULT_CONFIG_PATH
 from PyQt5.QtCore import pyqtSignal, QThread
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QImage
 import cv2
+import os 
+import configparser
 
 class CameraThread(QThread):
 
@@ -13,21 +14,16 @@ class CameraThread(QThread):
     self._camera_index = camera_index
     self._running = True
     self._cap = None
-    self._default_config = read_config(DEFAULT_CONFIG_PATH)
-    self._user_config = read_config(USER_CONFIG_PATH)
-
+    
 
   def run(self):
     self._running = True
-    self._cap = cv2.VideoCapture(self._camera_index, cv2.CAP_DSHOW)
+    self._cap = cv2.VideoCapture(self._camera_index, cv2.CAP_DSHOW)    
     try:
+        
         self._cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0)
         self._cap.set(cv2.CAP_PROP_AUTO_WB, 0) 
-        self._cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-        self._cap.set(cv2.CAP_PROP_BRIGHTNESS, self._user_config['Brightness'])
-        self._cap.set(cv2.CAP_PROP_CONTRAST, self._user_config['Contrast'])
-        self._cap.set(cv2.CAP_PROP_GAIN, self._user_config['ISO'])
-        self._cap.set(cv2.CAP_PROP_SHARPNESS, self._user_config['Sharpness'])
+        self._cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)        
 
         while self._running:
             ret, frame = self._cap.read()
