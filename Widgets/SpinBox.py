@@ -23,7 +23,7 @@ class SpinBox(QWidget):
     self._dsp.setDecimals(decimals)    
     self._dsp.setSingleStep(step)
     self._dsp.setAlignment(Qt.AlignRight)
-    self._dsp.setFixedWidth(73)
+    self._dsp.setFixedWidth(80)
     self._dsp.valueChanged.connect(self._value_changed)
     self._layout.addWidget(self._dsp)
     # --- SIGNAL    
