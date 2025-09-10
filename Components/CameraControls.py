@@ -1,15 +1,19 @@
 import cv2
 from PyQt5.QtCore import pyqtSignal, Qt
-from PyQt5.QtWidgets import QComboBox, QWidget, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QComboBox, QWidget, QVBoxLayout, QHBoxLayout, QLabel
+from PyQt5.QtGui import QFont
 from Widgets import Button, SpinBox
 
 
 class CameraControls(QWidget):
 
+  
   brightness_changed = pyqtSignal(float)
   contrast_changed = pyqtSignal(float)
   gain_changed = pyqtSignal(float)
   sharpness_changed = pyqtSignal(float)
+  default_pressed = pyqtSignal()
+  detect_cameras_pressed = pyqtSignal()
   
   def __init__(self, parent: QWidget | None = None):
     super().__init__(parent)
@@ -93,8 +97,25 @@ class CameraControls(QWidget):
     )
     _layout.addWidget(self._sharpness_control)
 
+    # -- DEFAULT --
+    _default_layout = QHBoxLayout()
+    _layout.addLayout(_default_layout)
 
-
+    self._default_btn = Button(
+      icon_path="Assets/svg/default.svg",
+      icon_path_hover="Assets/svg/default-hover.svg",
+      height=30,
+      width=30
+    )
+    _lbl = QLabel("DEFAULT")
+    font = QFont()
+    font.setPointSize(11)   # tamaño más grande
+    font.setBold(True)   
+    _lbl.setFont(font)
+    _default_layout.addWidget(self._default_btn)
+    _default_layout.addWidget(_lbl)
+    _default_layout.setContentsMargins(10, 0, 0, 0)
+    _default_layout.setAlignment(Qt.AlignLeft)
 
   def _detect_cameras(self):
     #! STOP CAMERA ??
@@ -119,3 +140,4 @@ class CameraControls(QWidget):
     self._cb_cameras.blockSignals(False)
     #! START CAMERA THREAD
 
+  

@@ -113,7 +113,7 @@ class Button(QSvgWidget):
         # Manejar el evento de click
         if event.button() == Qt.LeftButton:
             if self.is_enabled:
-                self.clicked.emit()
+                self._signal.emit()
         super().mousePressEvent(event)
 
     def set_enabled(self):
