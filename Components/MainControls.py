@@ -22,7 +22,18 @@ class MainControls(QWidget):
         height=30,
         width=30      
       )
+      self.record_btn.clicked.connect(self._record)
       _layout.addWidget(self.record_btn, 0)
+      # -- STOP --
+      self.stop_btn = Button(
+         icon_path="Assets/svg/stop.svg",
+         icon_path_hover="Assets/svg/stop-hover.svg",
+         height=30,
+         width=30
+      )
+      self.stop_btn.clicked.connect(self.stop)
+      self.stop_btn.hide()
+      _layout.addWidget(self.stop_btn, 0)
       # -- CONFIG --
       self.config_btn = Button(
         icon_path="Assets/svg/config.svg",
@@ -45,4 +56,10 @@ class MainControls(QWidget):
       _layout.addWidget(self.exit_btn, 0)
 
 
-    
+    def _record(self):
+      self.record_btn.hide()
+      self.stop_btn.show()       
+
+    def stop(self):
+      self.stop_btn.hide()
+      self.record_btn.show()

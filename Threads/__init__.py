@@ -1,2 +1,2 @@
 from .CameraThread import CameraThread
-from .CameraWorker import CameraWorker
+from. RecordThread import RecordThread

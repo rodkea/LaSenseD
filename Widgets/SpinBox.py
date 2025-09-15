@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import  QHBoxLayout, QWidget, QDoubleSpinBox
 class SpinBox(QWidget):
   
   def __init__(self, icon_path: str, signal: pyqtSignal, tooltip: str = '', width: int = 35,
-    height: int = 35, min_value: int = 0, step: float = 0.1, decimals: int = 1, max_value: int = 100, parent: QWidget | None = None):
+    height: int = 35, min_value: int = 0, step: float = 0.1, decimals: int = 1, max_value: int = 100, initial_value: int = 0, parent: QWidget | None = None):
     super().__init__(parent)
     # --- LAYOUT ---
     self._layout = QHBoxLayout()
@@ -18,8 +18,9 @@ class SpinBox(QWidget):
     self.setToolTip(tooltip)
     self._layout.addWidget(self._svg)
     # --- DOUBLESPINBOX ---
-    self._dsp = QDoubleSpinBox()
+    self._dsp = QDoubleSpinBox()    
     self._dsp.setRange(min_value, max_value)
+    self._dsp.setValue(initial_value)
     self._dsp.setDecimals(decimals)    
     self._dsp.setSingleStep(step)
     self._dsp.setAlignment(Qt.AlignRight)

@@ -1,9 +1,9 @@
 import cv2
-from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtCore import pyqtSignal, Qt, pyqtSlot
 from PyQt5.QtWidgets import QComboBox, QWidget, QVBoxLayout, QHBoxLayout, QLabel
 from PyQt5.QtGui import QFont
 from Widgets import Button, SpinBox
-
+from configparser import ConfigParser
 
 class CameraControls(QWidget):
 
@@ -14,8 +14,9 @@ class CameraControls(QWidget):
   sharpness_changed = pyqtSignal(float)
   default_pressed = pyqtSignal()
   detect_cameras_pressed = pyqtSignal()
+  camera_selected_changed = pyqtSignal(int)
   
-  def __init__(self, parent: QWidget | None = None):
+  def __init__(self, parent: QWidget | None = None, user_config : ConfigParser | None = None, user_defaults : ConfigParser | None = None):
     super().__init__(parent)
     # LAYOUT
     _layout = QVBoxLayout()
@@ -23,6 +24,8 @@ class CameraControls(QWidget):
     _layout.setContentsMargins(0, 20, 0, 0)
     _layout.setSpacing(2)
     _layout.setAlignment(Qt.AlignCenter)
+    # DEFAULTS
+    self._user_defaults = user_defaults 
     # CAMERA CONTROLS
     # -- CAMERA SELECT --
     _camera_select_layout = QHBoxLayout()
@@ -32,11 +35,12 @@ class CameraControls(QWidget):
 
     self._cb_cameras = QComboBox()
     self._cb_cameras.setFixedWidth(80)  # 🔹 ancho fijo para que no empuje
+    self._cb_cameras.currentIndexChanged.connect(self.camera_selected)
     self._btn_search = Button(
       icon_path="Assets/svg/camera-search.svg",
       icon_path_hover="Assets/svg/camera-search-hover.svg",
-    )
-    self._btn_search.clicked.connect(self._detect_cameras)
+      signal=self.detect_cameras_pressed      
+    )    
 
     _camera_select_layout.addWidget(self._btn_search, alignment=Qt.AlignCenter)
     _camera_select_layout.addWidget(self._cb_cameras, alignment=Qt.AlignCenter)
@@ -50,11 +54,13 @@ class CameraControls(QWidget):
       max_value=1023.0,
       step=1,
       decimals=0,
+      initial_value=user_config.getfloat('CameraSettings', 'brightness'),
       signal=self.brightness_changed,
       height=30,
       width=30
     )
     _layout.addWidget(self._brightness_control)
+
     # -- CONTRAST --
     self._contrast_control = SpinBox(
       icon_path="Assets/svg/contrast.svg",
@@ -63,6 +69,7 @@ class CameraControls(QWidget):
       min_value=-10.0,
       max_value=30.0,
       step=1,
+      initial_value=user_config.getfloat('CameraSettings', 'contrast'),
       decimals=0,
       height=23,
       width=23
@@ -77,6 +84,7 @@ class CameraControls(QWidget):
       min_value=0.0,
       max_value=1956,
       step=1,
+      initial_value=user_config.getfloat('CameraSettings', 'gain'),
       decimals=0,
       height= 30,
       width=30 
@@ -91,6 +99,7 @@ class CameraControls(QWidget):
       min_value=0,
       max_value=14.0,
       step=1,
+      initial_value=user_config.getfloat('CameraSettings', 'sharpness'),
       decimals=0,
       height=30,
       width=30
@@ -107,6 +116,7 @@ class CameraControls(QWidget):
       height=30,
       width=30
     )
+    self._default_btn.clicked.connect(self._set_defaults)
     _lbl = QLabel("DEFAULT")
     font = QFont()
     font.setPointSize(11)   # tamaño más grande
@@ -117,8 +127,8 @@ class CameraControls(QWidget):
     _default_layout.setContentsMargins(10, 0, 0, 0)
     _default_layout.setAlignment(Qt.AlignLeft)
 
-  def _detect_cameras(self):
-    #! STOP CAMERA ??
+  def detect_cameras(self):
+    print("Detectando cámaras...")
     self._cb_cameras.clear()
     index = 0
     available_cameras = []
@@ -137,7 +147,16 @@ class CameraControls(QWidget):
     if available_cameras:
       self._cb_cameras.addItems(available_cameras)
 
-    self._cb_cameras.blockSignals(False)
-    #! START CAMERA THREAD
+  def camera_selected(self):
+    selected_camera = self._cb_cameras.currentIndex()
+    self.camera_selected_changed.emit(selected_camera)
+    
+  @pyqtSlot()
+  def _set_defaults(self):
+    self._brightness_control.setValue(self._user_defaults.getfloat('CameraSettings', 'brightness'))
+    self._contrast_control.setValue(self._user_defaults.getfloat('CameraSettings', 'contrast'))
+    self._sharpness_control.setValue(self._user_defaults.getfloat('CameraSettings', 'sharpness'))
+    self._gain_control.setValue(self._user_defaults.getfloat('CameraSettings', 'gain'))
+
 
   
