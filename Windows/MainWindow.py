@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QHBoxLayout, QInputDialog, QMainWindow,  QWidget
 from PyQt5.QtCore import pyqtSlot
 from Camera import Camera
 from Threads import CameraThread, RecordThread
+from .AnalizeWindow import AnalyzeWindow
 from Components import CameraControls, MainControls
 from configparser import ConfigParser
 import os
@@ -31,6 +32,8 @@ class MainWindow(QMainWindow):
     self._main_controls.exit_pressed.connect(self._exit)
     self._main_controls.record_btn.clicked.connect(self._camera_record)
     self._main_controls.stop_btn.clicked.connect(self._camera_stop_record)
+    self._main_controls.analyze_btn.clicked.connect(self._show_analyze_window)
+    self._main_controls.record_btn.set_disabled()
     layout.addWidget(self._main_controls)
     # ------ CAMERA ------
     self._camera = Camera(self)
@@ -53,9 +56,21 @@ class MainWindow(QMainWindow):
     self.setWindowTitle("LaSense Desktop")
     try:
       self.create_camera_thread(0)
+      self._main_controls.record_btn.set_enabled()
     except:
       pass
 
+  @pyqtSlot()
+  def _show_analyze_window(self):
+    analyze_window = AnalyzeWindow(self)
+    self._main_controls.config_btn.set_disabled()
+    self._main_controls.record_btn.set_disabled()
+    self._main_controls.exit_btn.set_disabled()
+    analyze_window.exec_()  
+    self._main_controls.config_btn.set_enabled()
+    self._main_controls.record_btn.set_enabled()
+    self._main_controls.exit_btn.set_enabled()
+    
   @pyqtSlot()
   def _config_show_hide(self):
     if self._camera_controls.isVisible():
@@ -126,9 +141,12 @@ class MainWindow(QMainWindow):
     self._main_controls.config_btn.set_disabled()
     self._main_controls.exit_btn.set_disabled()
     self._main_controls.analyze_btn.set_disabled()
+    
     if self._camera_thread and not self._record_thread:
       filename, ok = QInputDialog.getText(self, 'Nombre del archivo', 'Ingrese el nombre del archivo:')
       if ok and filename:
+        self._main_controls.record_btn.hide()
+        self._main_controls.stop_btn.show()
         self._camera_thread.record()
         try:
           root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -154,6 +172,9 @@ class MainWindow(QMainWindow):
     if self._camera_thread and self._record_thread:
       self._camera_thread.stop_record()
       self._record_thread.stop()
+      self._record_thread = None
     self._main_controls.config_btn.set_enabled()
     self._main_controls.exit_btn.set_enabled()
     self._main_controls.analyze_btn.set_enabled()
+    self._main_controls.record_btn.show()
+    self._main_controls.stop_btn.hide()
