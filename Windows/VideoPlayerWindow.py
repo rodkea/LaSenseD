@@ -4,6 +4,7 @@ from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import Qt
 import os
 import re
+from descriptors import d_fuzzy
 
 class VideoPlayerWindow(QDialog):
     def __init__(self, filepath, parent=None):
@@ -56,8 +57,10 @@ class VideoPlayerWindow(QDialog):
                     self._num_frames = len(raw_data) // (height * width)
 
                 self._video_data = np.frombuffer(raw_data, dtype=np.uint8).reshape((self._num_frames, height, width))
-                
+                print(self._video_data.shape)
                 self._slider.setRange(0, self._num_frames - 1)
+                qt = d_fuzzy(self._video_data)
+                print(f"media {np.mean(qt)}")
         except Exception as e:
             print(f"Failed to load video file: {e}")
 

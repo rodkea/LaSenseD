@@ -3,37 +3,23 @@ from numpy import ndarray, sum, percentile, zeros, zeros_like, uint8, uint64, lo
 from typing import Tuple
 import time
 
-def d_fuzzy(path: str, width: int, height: int):
-    cap = cv2.VideoCapture(path)
-    if not cap.isOpened():
-        raise IOError(f"Failed to open the video file: {path}") 
+def d_fuzzy(frames : ndarray):
+    
+    mu_dark, mu_medium, mu_light = calc_bands(frames[0])               
+    mu_prev = calc_mu_k2(frames[0], mu_dark, mu_medium, mu_light)
+    seq = zeros_like(mu_prev[0], dtype=uint64)        
+    N = 1
     frame_count = 0
-    ret, frame = cap.read()
-    start_time = time.time()
-    if ret:
-        frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        start_time_2 = time.time()
-        mu_dark, mu_medium, mu_light = calc_bands(frame_gray)
-        end_time = time.time()
-        execution_time = end_time - start_time_2
-        N = 1        
-        mu_prev = calc_mu_k2(frame_gray, mu_dark, mu_medium, mu_light)
-        seq = zeros_like(mu_prev[0], dtype=uint64)        
-    else:
-        return
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break   
+    for frame in frames[1:]:
         N += 1
         frame_count += 1
-        frame_gray : ndarray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        mu_curr = calc_mu_k(frame_gray, mu_dark, mu_medium, mu_light)
+        frame
+        mu_curr = calc_mu_k(frame, mu_dark, mu_medium, mu_light)
         seq += calc_seq(mu_prev, mu_curr)
         mu_prev = mu_curr
     qt = seq / N
-    return qt        
-  
+    return qt
+
 def calc_bands(frame: ndarray) -> tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]]:
     
     mu_medium_min, mu_dark_max, mu_light_min, mu_medium_max = percentile(frame, [20,40,60,80],method='nearest')
@@ -57,6 +43,6 @@ def calc_mu_k2(frame: ndarray, mu_dark: Tuple[int, int], mu_medium: Tuple[int, i
     return mu_k
 
 def calc_seq(mu_prev: ndarray, mu_curr: ndarray) -> ndarray:
-  
-  seq : ndarray = (mu_prev[:] == 1) & (mu_curr[:] == 0)
-  return sum(seq.astype(uint64), axis=0)
+
+    seq : ndarray = (mu_prev[:] == 1) & (mu_curr[:] == 0)
+    return sum(seq.astype(uint64), axis=0)
