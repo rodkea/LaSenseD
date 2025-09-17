@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QHBoxLayout, QMainWindow,  QWidget
+from PyQt5.QtWidgets import QHBoxLayout, QInputDialog, QMainWindow,  QWidget
 from PyQt5.QtCore import pyqtSlot
 from Camera import Camera
 from Threads import CameraThread, RecordThread
@@ -51,18 +51,23 @@ class MainWindow(QMainWindow):
 
     # --- WINDOW SETUP ---
     self.setWindowTitle("LaSense Desktop")
-    
+    try:
+      self.create_camera_thread(0)
+    except:
+      pass
 
   @pyqtSlot()
   def _config_show_hide(self):
     if self._camera_controls.isVisible():
       self._main_controls.exit_btn.set_enabled()
       self._main_controls.record_btn.set_enabled()
+      self._main_controls.analyze_btn.set_enabled()
       self._camera_controls.hide()
     else:
       self._camera_controls.show()
       self._main_controls.exit_btn.set_disabled()
       self._main_controls.record_btn.set_disabled()
+      self._main_controls.analyze_btn.set_disabled()
 
   
 
@@ -120,16 +125,27 @@ class MainWindow(QMainWindow):
   def _camera_record(self):
     self._main_controls.config_btn.set_disabled()
     self._main_controls.exit_btn.set_disabled()
+    self._main_controls.analyze_btn.set_disabled()
     if self._camera_thread and not self._record_thread:
-      self._camera_thread.record()
-      try:
-        root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        data_dir = os.path.join(root_dir, 'data')
-        os.makedirs(data_dir, exist_ok=True)
-      except OSError as e:
-        print(f"Error creando el directorio de datos '{data_dir}': {e}")
-      self._record_thread = RecordThread(filename="test", queue=self._camera_thread.queue, resolution=(480,640))
-      self._record_thread.start()
+      filename, ok = QInputDialog.getText(self, 'Nombre del archivo', 'Ingrese el nombre del archivo:')
+      if ok and filename:
+        self._camera_thread.record()
+        try:
+          root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+          data_dir = os.path.join(root_dir, 'data')
+          os.makedirs(data_dir, exist_ok=True)
+        except OSError as e:
+          print(f"Error creando el directorio de datos '{data_dir}': {e}")
+        self._record_thread = RecordThread(filename=filename, queue=self._camera_thread.queue, resolution=(480,640))
+        self._record_thread.start()
+      else:
+          self._main_controls.config_btn.set_enabled()
+          self._main_controls.exit_btn.set_enabled()
+          self._main_controls.analyze_btn.set_enabled()
+          self._main_controls.record_btn.show()
+          self._main_controls.stop_btn.hide()
+
+
 
 
 
@@ -140,5 +156,4 @@ class MainWindow(QMainWindow):
       self._record_thread.stop()
     self._main_controls.config_btn.set_enabled()
     self._main_controls.exit_btn.set_enabled()
-      
-      
+    self._main_controls.analyze_btn.set_enabled()

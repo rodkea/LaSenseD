@@ -30,10 +30,19 @@ class MainControls(QWidget):
          icon_path_hover="Assets/svg/stop-hover.svg",
          height=30,
          width=30
-      )
+      )     
       self.stop_btn.clicked.connect(self.stop)
       self.stop_btn.hide()
       _layout.addWidget(self.stop_btn, 0)
+      # -- ANALYZE --
+      self.analyze_btn = Button(
+         icon_path="Assets/svg/ml.svg",
+         icon_path_hover="Assets/svg/ml-hover.svg",
+         icon_path_disabled="Assets/svg/ml-disabled.svg",
+         height=30,
+         width=30,        
+      )
+      _layout.addWidget(self.analyze_btn, 0)
       # -- CONFIG --
       self.config_btn = Button(
         icon_path="Assets/svg/config.svg",
