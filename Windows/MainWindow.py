@@ -72,6 +72,7 @@ class MainWindow(QMainWindow):
     self._main_controls.record_btn.set_enabled()
     self._main_controls.exit_btn.set_enabled()
     
+    
   @pyqtSlot()
   def _config_show_hide(self):
     if self._camera_controls.isVisible():
@@ -150,7 +151,7 @@ class MainWindow(QMainWindow):
         flags=(self.windowFlags() & ~Qt.WindowContextHelpButtonHint),
         
       )
-      
+
       if ok and filename:
         self._main_controls.record_btn.hide()
         self._main_controls.stop_btn.show()

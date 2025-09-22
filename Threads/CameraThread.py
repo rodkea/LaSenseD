@@ -24,7 +24,7 @@ class CameraThread(QThread):
       self._cap.set(cv2.CAP_PROP_AUTO_WB, 0) 
       self._cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)        
 
-      while self._running:
+      while self._running is not False:
         ret, frame = self._cap.read()        
         if ret:
           gray_image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -38,10 +38,12 @@ class CameraThread(QThread):
     finally:
       self._cap.release()
 
+
   
   def stop(self):
     self._running = False
     self.wait()
+    print("EXIT CAMERA THREAD")
 
   def set_brightness(self, value: float):    
     self._cap.set(cv2.CAP_PROP_BRIGHTNESS, value)

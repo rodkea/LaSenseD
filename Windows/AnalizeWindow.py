@@ -1,7 +1,10 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QListWidget, QPushButton, QHBoxLayout, QMessageBox
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QListWidget, QPushButton, QHBoxLayout, QMessageBox, QLabel
 from PyQt5.QtCore import Qt
-from .VideoPlayerWindow import VideoPlayerWindow
 import os
+from .VideoPlayerWindow import VideoPlayerWindow
+import numpy as np
+from Threads import AnalyzeThread
+
 
 class AnalyzeWindow(QDialog):
   def __init__(self, parent=None):
@@ -9,6 +12,13 @@ class AnalyzeWindow(QDialog):
     self.setWindowTitle("Analizar Videos")
     self.setModal(True)
     self.setLayout(QVBoxLayout())
+    self._analyze_layout = QVBoxLayout()
+    self._lb_video = QLabel()
+    self._lb_video.setAlignment(Qt.AlignCenter)
+    self._lb_video.setFixedHeight(200)
+    self._lb_video.setStyleSheet("background-color: #333; border-radius: 5px;")
+    self._lb_video.hide()
+    self.layout().addWidget(self._lb_video)
     self.file_list = QListWidget()
     self.layout().addWidget(self.file_list)
     self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
@@ -20,6 +30,7 @@ class AnalyzeWindow(QDialog):
     button_layout.addWidget(self.analyze_button)
     button_layout.addWidget(self.delete_button)
     self.layout().addLayout(button_layout)
+    self._analyze_thread = None
     
     
     self.analyze_button.clicked.connect(self.analyze_video)
@@ -40,14 +51,20 @@ class AnalyzeWindow(QDialog):
         if not selected_item:
             QMessageBox.warning(self, "No selection", "Please select a file to analyze.")
             return
-            
+        
         filename = selected_item.text()
         filepath = os.path.join(self.videos_dir, filename)
+        self._analyze_thread = AnalyzeThread(filepath)
+        self._analyze_thread.finish.connect(self._finish)
+        self._analyze_thread.start()
         
-        self.accept() # Cierra la ventana actual con estado de "aceptado"
-        self._video_player = VideoPlayerWindow(filepath, self.parent())
-        self._video_player.exec_()
-        print("EXIT")
+  def _finish(self, qt: np.ndarray, mean: float, median: float):
+    d_fuzzy = VideoPlayerWindow(mean, median, qt)
+    d_fuzzy.exec_()
+    self._analyze_thread = None
+
+
+
   def delete_video(self):
     selected_item = self.file_list.currentItem()
     if not selected_item:

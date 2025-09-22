@@ -22,3 +22,6 @@ class Camera(QWidget):
     pixmap = QPixmap.fromImage(qt_image)
     scaled_pixmap = pixmap.scaled(self._lb_video.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
     self._lb_video.setPixmap(scaled_pixmap)
+
+  def clear_camera(self):
+    self._lb_video.clear()
