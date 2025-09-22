@@ -17,22 +17,12 @@ class VideoPlayerWindow(QDialog):
         self._video_data = None
         self._current_frame = 0
         self._num_frames = 0
-
-        self._image_label = QLabel()
-        self._image_label.setAlignment(Qt.AlignCenter)
-        self.layout().addWidget(self._image_label, 1)
-
-        self._slider = QSlider(Qt.Horizontal)
-        self._slider.valueChanged.connect(self.set_frame)
-        self.layout().addWidget(self._slider)
         
         self.exit_button = QPushButton("Exit")
         self.layout().addWidget(self.exit_button)
         self.exit_button.clicked.connect(self.close)
 
-        self.load_video(filepath)
-        if self._video_data is not None:
-            self.set_frame(0)
+        self.load_video(filepath)     
 
     def load_video(self, filepath):
         try:
@@ -58,21 +48,7 @@ class VideoPlayerWindow(QDialog):
 
                 self._video_data = np.frombuffer(raw_data, dtype=np.uint8).reshape((self._num_frames, height, width))
                 print(self._video_data.shape)
-                self._slider.setRange(0, self._num_frames - 1)
                 qt = d_fuzzy(self._video_data)
                 print(f"media {np.mean(qt)}")
         except Exception as e:
             print(f"Failed to load video file: {e}")
-
-    def set_frame(self, frame_index):
-        if self._video_data is not None and 0 <= frame_index < self._num_frames:
-            self._current_frame = frame_index
-            frame = self._video_data[frame_index]
-            h, w = frame.shape
-            q_image = QImage(frame.data, w, h, w, QImage.Format_Grayscale8)
-            pixmap = QPixmap.fromImage(q_image)
-            self._image_label.setPixmap(pixmap.scaled(self._image_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
-
-    def resizeEvent(self, event):
-        self.set_frame(self._current_frame)
-        super().resizeEvent(event)

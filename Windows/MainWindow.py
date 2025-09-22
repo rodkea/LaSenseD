@@ -1,11 +1,12 @@
 from PyQt5.QtWidgets import QHBoxLayout, QInputDialog, QMainWindow,  QWidget
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, Qt
 from Camera import Camera
 from Threads import CameraThread, RecordThread
 from .AnalizeWindow import AnalyzeWindow
 from Components import CameraControls, MainControls
 from configparser import ConfigParser
 import os
+
 
 class MainWindow(QMainWindow):
 
@@ -143,7 +144,13 @@ class MainWindow(QMainWindow):
     self._main_controls.analyze_btn.set_disabled()
     
     if self._camera_thread and not self._record_thread:
-      filename, ok = QInputDialog.getText(self, 'Nombre del archivo', 'Ingrese el nombre del archivo:')
+      filename, ok = QInputDialog.getText(self, 
+        'Nombre del archivo', 
+        'Ingrese el nombre del archivo:', 
+        flags=(self.windowFlags() & ~Qt.WindowContextHelpButtonHint),
+        
+      )
+      
       if ok and filename:
         self._main_controls.record_btn.hide()
         self._main_controls.stop_btn.show()

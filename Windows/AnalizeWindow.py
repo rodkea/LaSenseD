@@ -47,6 +47,7 @@ class AnalyzeWindow(QDialog):
         self.accept() # Cierra la ventana actual con estado de "aceptado"
         self._video_player = VideoPlayerWindow(filepath, self.parent())
         self._video_player.exec_()
+        print("EXIT")
   def delete_video(self):
     selected_item = self.file_list.currentItem()
     if not selected_item:
