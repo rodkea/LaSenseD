@@ -13,15 +13,14 @@ class VideoPlayerWindow(QDialog):
         super().__init__(parent)
         self.setWindowTitle("DFUZZY ANALISIS")        
         self.setLayout(QVBoxLayout())
-        self.resize(650, 500)
-        self._canvas = MplCanvas()
-        cax = self._canvas.axes.imshow(qt, cmap='viridis')
-        self._canvas.cb = self._canvas.figure.colorbar(cax, ax=self._canvas .axes)
-        self._canvas.draw()
+        self.resize(650, 500)        
+        image_lb = QLabel()
+        image_lb.setPixmap(qt)
+        image_lb.setAlignment(Qt.AlignCenter)
+        self.layout().addWidget(image_lb)
         self._current_frame = 0
         self._num_frames = 0
         
-        self.layout().addWidget(self._canvas)
         _stats_layout = QHBoxLayout()
         _mean_lb = QLabel(f"Media: {medio:.4f}")
         _median_lb = QLabel(f"Mediana: {median:.4f}")
