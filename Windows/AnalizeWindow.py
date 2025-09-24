@@ -26,7 +26,6 @@ class AnalyzeWindow(QDialog):
     button_layout = QHBoxLayout()
     self.analyze_button = QPushButton("Analizar")
     self.delete_button = QPushButton("Borrar")
-    self.exit_button = QPushButton("Salir")
     button_layout.addWidget(self.analyze_button)
     button_layout.addWidget(self.delete_button)
     self.layout().addLayout(button_layout)
@@ -47,6 +46,8 @@ class AnalyzeWindow(QDialog):
         self.file_list.addItem(f)
 
   def analyze_video(self):
+        self.analyze_button.setDisabled(True)
+        self.delete_button.setDisabled(True)
         selected_item = self.file_list.currentItem()
         if not selected_item:
             QMessageBox.warning(self, "No selection", "Please select a file to analyze.")
@@ -61,6 +62,8 @@ class AnalyzeWindow(QDialog):
   def _finish(self, qt: np.ndarray, mean: float, median: float):
     d_fuzzy = VideoPlayerWindow(mean, median, qt)
     d_fuzzy.exec_()
+    self.analyze_button.setEnabled(True)
+    self.delete_button.setEnabled(True)
     self._analyze_thread = None
 
 

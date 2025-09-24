@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import QComboBox, QWidget, QVBoxLayout, QHBoxLayout, QLabel
 from PyQt5.QtGui import QFont
 from Widgets import Button, SpinBox
 from configparser import ConfigParser
+from utils import ASSETS_DIR
+import os
 
 class CameraControls(QWidget):
 
@@ -37,8 +39,8 @@ class CameraControls(QWidget):
     self._cb_cameras.setFixedWidth(80)  # 🔹 ancho fijo para que no empuje
     self._cb_cameras.currentIndexChanged.connect(self.camera_selected)
     self._btn_search = Button(
-      icon_path="Assets/svg/camera-search.svg",
-      icon_path_hover="Assets/svg/camera-search-hover.svg",
+      icon_path=os.path.join(ASSETS_DIR, "svg", "camera-search.svg"),
+      icon_path_hover=os.path.join(ASSETS_DIR, "svg", "camera-search-hover.svg"),
       signal=self.detect_cameras_pressed      
     )    
 
@@ -48,7 +50,7 @@ class CameraControls(QWidget):
     _layout.addLayout(_camera_select_layout)
     # -- BRIGHTNESS --
     self._brightness_control = SpinBox(
-      icon_path="Assets/svg/brightness.svg",
+      icon_path=os.path.join(ASSETS_DIR, "svg", "brightness.svg"),
       tooltip="Brillo",
       min_value=0.0,
       max_value=1023.0,
@@ -63,7 +65,7 @@ class CameraControls(QWidget):
 
     # -- CONTRAST --
     self._contrast_control = SpinBox(
-      icon_path="Assets/svg/contrast.svg",
+      icon_path=os.path.join(ASSETS_DIR, "svg", "contrast.svg"),
       tooltip="Contraste",
       signal=self.contrast_changed,
       min_value=-10.0,
@@ -78,7 +80,7 @@ class CameraControls(QWidget):
 
     # -- GAIN --
     self._gain_control = SpinBox(
-      icon_path="Assets/svg/iso.svg",
+      icon_path=os.path.join(ASSETS_DIR, "svg", "iso.svg"),
       tooltip="Ganancia",
       signal=self.gain_changed,
       min_value=0.0,
@@ -93,7 +95,7 @@ class CameraControls(QWidget):
 
     # -- SHARPNESS --
     self._sharpness_control = SpinBox(
-      icon_path="Assets/svg/sharpness.svg",
+      icon_path=os.path.join(ASSETS_DIR, "svg", "sharpness.svg"),
       tooltip="Contraste",
       signal=self.sharpness_changed,
       min_value=0,
@@ -111,8 +113,8 @@ class CameraControls(QWidget):
     _layout.addLayout(_default_layout)
 
     self._default_btn = Button(
-      icon_path="Assets/svg/default.svg",
-      icon_path_hover="Assets/svg/default-hover.svg",
+      icon_path=os.path.join(ASSETS_DIR, "svg", "default.svg"),
+      icon_path_hover=os.path.join(ASSETS_DIR, "svg", "default-hover.svg"),
       height=30,
       width=30
     )
@@ -128,7 +130,6 @@ class CameraControls(QWidget):
     _default_layout.setAlignment(Qt.AlignLeft)
 
   def detect_cameras(self):
-    print("Detectando cámaras...")
     self._cb_cameras.clear()
     index = 0
     available_cameras = []

@@ -15,8 +15,7 @@ class CameraThread(QThread):
     self._running = True
     self._recording = False    
     self._cap = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW) 
-    time.sleep(0.2)
-    
+    time.sleep(0.2)    
 
   def run(self):
     try:        
@@ -37,13 +36,10 @@ class CameraThread(QThread):
 
     finally:
       self._cap.release()
-
-
   
   def stop(self):
     self._running = False
     self.wait()
-    print("EXIT CAMERA THREAD")
 
   def set_brightness(self, value: float):    
     self._cap.set(cv2.CAP_PROP_BRIGHTNESS, value)
@@ -62,6 +58,9 @@ class CameraThread(QThread):
 
   def stop_record(self):
     self._recording = False
+
+  def is_opened(self):
+    return self._cap.isOpened()
 
   
   

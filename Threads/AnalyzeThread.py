@@ -20,7 +20,6 @@ class AnalyzeThread(QThread):
 
   def run(self):
     data = read_file(self._filepath)
-    print(data.shape)
     qt = d_fuzzy(data)
     mean = np.mean(qt)
     median = np.median(qt)

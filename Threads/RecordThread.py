@@ -103,12 +103,10 @@ class RecordThread(QThread):
       f.write(actual_frame_count_digits_bytes)      
   
   def stop(self):
-    print("Vaciando buffer....")
     while not self._queue.empty():
       try:
         self._queue.get_nowait()
       except:
         break
-    print("Buffer vacio")
     self.requestInterruption()
     self.wait()

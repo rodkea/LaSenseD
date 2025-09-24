@@ -1,23 +1,25 @@
 from PyQt5.QtWidgets import QHBoxLayout, QInputDialog, QMainWindow,  QWidget
 from PyQt5.QtCore import pyqtSlot, Qt
+from PyQt5.QtGui import QIcon
 from Camera import Camera
 from Threads import CameraThread, RecordThread
 from .AnalizeWindow import AnalyzeWindow
 from Components import CameraControls, MainControls
 from configparser import ConfigParser
+from utils import ROOT_DIR, ASSETS_DIR
 import os
 
 
 class MainWindow(QMainWindow):
 
+  
   def __init__(self, *args, **kwargs):
-    super().__init__(*args, **kwargs)
-    
+    super().__init__(*args, **kwargs)    
     # --- CONFIGS ---
     self.user_config = ConfigParser()
-    self.user_config.read('user.config')
+    self.user_config.read(os.path.join(ROOT_DIR, 'user.config'))
     self.default_config = ConfigParser()
-    self.default_config.read('default.config')
+    self.default_config.read(os.path.join(ROOT_DIR, 'default.config'))
 
     # --- CENTRAL WIDGET ---
     
@@ -35,6 +37,7 @@ class MainWindow(QMainWindow):
     self._main_controls.stop_btn.clicked.connect(self._camera_stop_record)
     self._main_controls.analyze_btn.clicked.connect(self._show_analyze_window)
     self._main_controls.record_btn.set_disabled()
+    self._main_controls.config_btn.set_disabled()
     layout.addWidget(self._main_controls)
     # ------ CAMERA ------
     self._camera = Camera(self)
@@ -55,9 +58,12 @@ class MainWindow(QMainWindow):
 
     # --- WINDOW SETUP ---
     self.setWindowTitle("LaSense Desktop")
+    self.setWindowIcon(QIcon(os.path.join(ASSETS_DIR, "jpg","LaSense.jpg")))
     try:
       self.create_camera_thread(0)
-      self._main_controls.record_btn.set_enabled()
+      if self._camera_thread.is_opened():
+        self._main_controls.record_btn.set_enabled()
+        self._main_controls.config_btn.set_enabled()
     except:
       pass
 
@@ -68,8 +74,9 @@ class MainWindow(QMainWindow):
     self._main_controls.record_btn.set_disabled()
     self._main_controls.exit_btn.set_disabled()
     analyze_window.exec_()  
-    self._main_controls.config_btn.set_enabled()
-    self._main_controls.record_btn.set_enabled()
+    if self._camera_thread.is_opened():
+      self._main_controls.config_btn.set_enabled()
+      self._main_controls.record_btn.set_enabled()
     self._main_controls.exit_btn.set_enabled()
     
     
@@ -77,7 +84,8 @@ class MainWindow(QMainWindow):
   def _config_show_hide(self):
     if self._camera_controls.isVisible():
       self._main_controls.exit_btn.set_enabled()
-      self._main_controls.record_btn.set_enabled()
+      if self._camera_thread.is_opened():
+        self._main_controls.record_btn.set_enabled()
       self._main_controls.analyze_btn.set_enabled()
       self._camera_controls.hide()
     else:
